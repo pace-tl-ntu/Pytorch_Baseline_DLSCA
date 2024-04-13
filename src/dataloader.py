@@ -4,7 +4,7 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from torch.utils.data import Dataset
 from sklearn.model_selection import train_test_split
 from src.utils import load_chipwhisperer, generate_traces, calculate_HW, load_aes_hd_ext, \
-    load_ascad, load_ctf, load_sysmocom
+    load_ascad, load_ctf
 import torch
 
 class Custom_Dataset(Dataset):
