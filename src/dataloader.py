@@ -47,11 +47,6 @@ class Custom_Dataset(Dataset):
                 if leakage == 'HW':
                     self.Y_profiling = np.array(calculate_HW(self.Y_profiling))
                     self.Y_attack = np.array(calculate_HW(self.Y_attack))
-        elif dataset == 'sysmocom':
-            data_root = root
-            (self.X_profiling, self.X_attack), (self.Y_profiling, self.Y_attack), (self.plt_profiling, self.plt_attack), self.correct_key = \
-                load_sysmocom(sysmocom_database_file= root, byte = byte , leakage_model=leakage, train_begin=0, train_end=9000, test_begin=0,
-                          test_end=1000)
         elif dataset == 'Chipwhisperer':
             data_root = 'Dataset/Chipwhisperer/'
             (self.X_profiling, self.X_attack), (self.Y_profiling, self.Y_attack), (self.plt_profiling, self.plt_attack), self.correct_key = load_chipwhisperer(root + data_root + '/', leakage_model=leakage)
