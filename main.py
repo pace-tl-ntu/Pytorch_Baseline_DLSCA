@@ -14,7 +14,7 @@ from src.trainer import trainer
 from src.utils import perform_attacks, NTGE_fn
 
 train_models = True
-dataset = "./"
+dataset = "ASCAD"
 model_type = "cnn" #mlp, cnn
 leakage = "HW" #ID, HW
 byte = 0
@@ -53,7 +53,7 @@ for byte in range(0,16):
         classes = 256
 
 
-    dataloadertrain = Custom_Dataset(root='./Dataset/sysmocom_dataset/', dataset=dataset, leakage=leakage,
+    dataloadertrain = Custom_Dataset(root='./Dataset/', dataset=dataset, leakage=leakage,
                                                  transform=transforms.Compose([ToTensor_trace()]), byte = byte)
     dataloadertrain.choose_phase("train")
     dataloadertest = deepcopy(dataloadertrain)
