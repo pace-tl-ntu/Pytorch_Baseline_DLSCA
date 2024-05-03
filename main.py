@@ -21,7 +21,10 @@ byte = 0
 num_epochs = 50
 total_num_models = 100
 nb_traces_attacks = 1000
-
+if not os.path.exists('./Dataset/'):
+    os.mkdir('./Dataset/')
+if not os.path.exists('./Result/'):
+    os.mkdir('./Result/')
 
 for byte in range(0,16):
     root = "./Result/"
