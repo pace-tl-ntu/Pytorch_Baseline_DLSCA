@@ -427,7 +427,75 @@ def load_chipwhisperer(chipwhisper_folder, leakage_model='HW',train_begin = 0,tr
            (P_profiling[train_begin:train_end],  P_profiling[test_begin:test_end]), keys[0]
 
 
+def load_chipwhisperer_desync(chipwhisper_folder, desync_level, leakage_model='HW', train_begin=0, train_end=8000,
+                              test_begin=8000, test_end=10000):
+    if desync_level == 0:
+        X_profiling = np.load(chipwhisper_folder + 'traces.npy')[:10000]
+    elif desync_level > 0:
+        if not os.path.exists(chipwhisper_folder+'/Desync_traces_' + str(desync_level) + '.npy'):
+            create_chipwhisperer_desync(chipwhisper_folder, desync_level=desync_level)
+        X_profiling = np.load(chipwhisper_folder + 'Desync_traces_'+str(desync_level)+'.npy')[:10000]
+        print("Desync of {} is loaded".format(desync_level))
+    Y_profiling = np.load(chipwhisper_folder + 'labels.npy')[:10000]
 
+    if leakage_model == 'HW':
+        Y_profiling = calculate_HW(Y_profiling)
+        Y_profiling = np.array(Y_profiling)
+    P_profiling = np.load(chipwhisper_folder + 'plain.npy')[:10000, 0]
+    print("X_total : ", X_profiling.shape)
+    print("C_total : ", P_profiling.shape)
+    print("Y_total : ", Y_profiling.shape)
+    keys = np.load(chipwhisper_folder + 'key.npy')[:10000, 0]
+    return (X_profiling[train_begin:train_end], X_profiling[test_begin:test_end]), (
+    Y_profiling[train_begin:train_end], Y_profiling[test_begin:test_end]), \
+           (P_profiling[train_begin:train_end], P_profiling[test_begin:test_end]), keys[0]
+def create_chipwhisperer_desync(chipwhisper_folder, desync_level=20):
+    X_profiling_old = np.load(chipwhisper_folder + 'traces.npy')
+    # Y_profiling = np.load(chipwhisper_folder + 'labels.npy')
+    # scaler_std = StandardScaler()
+    # X_profiling_old = scaler_std.fit_transform(X_profiling_old)
+    # Desync
+    X_profiling= np.zeros((X_profiling_old.shape[0], X_profiling_old.shape[1]))
+    print("Applying desynchronization with level:", desync_level)
+    for i in tqdm(range(X_profiling.shape[0])):
+        rand_desync = random.randint(0, desync_level) #-desync_level
+        point = 0
+        while point < X_profiling.shape[1]:
+            if rand_desync <= 0: #add randomness in the front.
+                if point < abs(rand_desync):
+                    # print("rand_desync: ", rand_desync)
+                    # print("point: ", point)
+                    # print("---------------------------------------------")
+                    X_profiling[i, point] = np.random.normal(loc=0, scale=1, size=None)
+                elif point + rand_desync  < X_profiling.shape[1]:
+                    # print("rand_desync: ", rand_desync)
+                    # print("point: ", point)
+                    # print("point - rand_desync: ", point + rand_desync)
+                    # print("---------------------------------------------")
+                    X_profiling[i, point] = X_profiling_old[i, point + rand_desync]
+            elif rand_desync > 0: #add randomness at the back
+                if point + rand_desync < X_profiling.shape[1]:
+                    # print("rand_desync: ", rand_desync)
+                    # print("point: ", point)
+                    # print("point - rand_desync: ", point + rand_desync)
+                    # print("---------------------------------------------")
+                    X_profiling[i, point] = X_profiling_old[i, point + rand_desync]
+                else:
+                    # print("rand_desync: ", rand_desync)
+                    # print("point: ", point)
+                    # print("---------------------------------------------")
+                    X_profiling[i, point] = np.random.normal(loc=0, scale=1, size = None)
+            point += 1
+    # if leakage_model == 'HW':
+    #     Y_profiling = calculate_HW(Y_profiling)
+    #     Y_profiling = np.array(Y_profiling)
+    # P_profiling = np.load(chipwhisper_folder + 'plain.npy')[:10000, 0]
+    print("X_total : ", X_profiling.shape)
+    # print("C_total : ", P_profiling.shape)
+    # print("Y_total : ", Y_profiling.shape)
+    # keys = np.load(chipwhisper_folder + 'key.npy')[:10000, 0]
+    np.save(chipwhisper_folder+"Desync_traces_"+str(desync_level)+".npy", X_profiling)
+    return
 
 # Objective: GE
 def rk_key(rank_array, key):

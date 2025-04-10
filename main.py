@@ -14,19 +14,19 @@ from src.trainer import trainer
 from src.utils import perform_attacks, NTGE_fn
 
 train_models = True
-dataset = "ASCAD"
-model_type = "cnn" #mlp, cnn
+dataset = "Chipwhisperer"
+model_type = "mlp" #mlp, cnn
 leakage = "HW" #ID, HW
 byte = 0
 num_epochs = 50
-total_num_models = 100
+total_num_models = 1
 nb_traces_attacks = 1000
-if not os.path.exists('./Dataset/'):
-    os.mkdir('./Dataset/')
+if not os.path.exists('./../Dataset/'):
+    os.mkdir('./../Dataset/')
 if not os.path.exists('./Result/'):
     os.mkdir('./Result/')
 
-for byte in range(0,16):
+for byte in range(1): #0,16):
     root = "./Result/"
     save_root = root+dataset+"_"+model_type+ "_byte"+str(byte)+"_"+leakage+"/"
     model_root = save_root+"models/"
@@ -56,7 +56,7 @@ for byte in range(0,16):
         classes = 256
 
 
-    dataloadertrain = Custom_Dataset(root='./Dataset/', dataset=dataset, leakage=leakage,
+    dataloadertrain = Custom_Dataset(root='./../', dataset=dataset, leakage=leakage,
                                                  transform=transforms.Compose([ToTensor_trace()]), byte = byte)
     dataloadertrain.choose_phase("train")
     dataloadertest = deepcopy(dataloadertrain)
